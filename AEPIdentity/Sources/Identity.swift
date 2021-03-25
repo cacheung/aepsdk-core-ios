@@ -21,8 +21,6 @@ import Foundation
     public static let extensionVersion = IdentityConstants.EXTENSION_VERSION
     public let metadata: [String: String]? = nil
     private(set) var state: IdentityState?
-    private let dataStore = NamedCollectionDataStore(name: IdentityConstants.DATASTORE_NAME)
-
     // MARK: Extension
 
     public required init(runtime: ExtensionRuntime) {
@@ -33,6 +31,7 @@ import Foundation
             Log.error(label: "\(name):\(#function)", "Failed to create Data Queue, Identity could not be initialized")
             return
         }
+        let dataStore = NamedCollectionDataStore(name: IdentityConstants.DATASTORE_NAME)
 
         let hitQueue = PersistentHitQueue(dataQueue: dataQueue, processor: IdentityHitProcessor(responseHandler: handleNetworkResponse(hit:responseData:)))
         let pushIdManager = PushIDManager(dataStore: dataStore, eventDispatcher: dispatch(event:))
@@ -146,31 +145,10 @@ import Foundation
                                                       data: eventData as [String: Any])
         dispatch(event: responseEvent)
     }
-    /// Handles the analytics response event
+    /// Handles the analytics response event and dispatch an "AVID Sync" event
     /// - Parameter event: the analytics response event
     private func handleAnalyticsResponseIdentity(event: Event) {
-        guard let aid = event.data?[IdentityConstants.Analytics.ANALYTICS_ID] as? String, !aid.isEmpty else {
-            Log.error(label: "\(name):\(#function)", "Analytics Id is not found or empty")
-            return
-        }
-        if dataStore.contains(key: IdentityConstants.DataStoreKeys.AID_SYNCED_KEY) {
-            return
-        } else { dataStore.set(key: IdentityConstants.DataStoreKeys.AID_SYNCED_KEY, value: true)
-        }
-        let identifiers: [String: String] = [IdentityConstants.EventDataKeys.ANALYTICS_ID: aid]
-        let syncData: [String: Any] = [
-            IdentityConstants.EventDataKeys.IDENTIFIERS: identifiers,
-            IdentityConstants.EventDataKeys.FORCE_SYNC: false,
-            IdentityConstants.EventDataKeys.IS_SYNC_EVENT: true,
-            IdentityConstants.EventDataKeys.AUTHENTICATION_STATE: MobileVisitorAuthenticationState.unknown.rawValue,
-        ]
-
-        let avidEvent = Event(name: IdentityConstants.EventNames.AVID_SYNC_EVENT,
-                              type: EventType.identity,
-                              source: EventSource.requestIdentity,
-                              data: syncData)
-        Log.debug(label: "\(name):\(#function)", "Dispatching AVID sync event with data: \n\(syncData as AnyObject)")
-        dispatch(event: avidEvent)
+        state?.handleAnalyticsResponse(event: event, eventDispatcher: dispatch(event:))
     }
 
     // MARK: Event Handlers

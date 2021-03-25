@@ -20,7 +20,7 @@ class IdentityStateTests: XCTestCase {
     var mockHitQueue: MockHitQueue {
         return state.hitQueue as! MockHitQueue
     }
-
+    
     var mockDataStore: MockDataStore {
         return ServiceProvider.shared.namedKeyValueService as! MockDataStore
     }
@@ -876,6 +876,29 @@ class IdentityStateTests: XCTestCase {
         XCTAssertTrue(mockHitQueue.calledSuspend) // we should have suspended the hit queue
         XCTAssertEqual(PrivacyStatus.unknown, state.identityProperties.privacyStatus) // privacy status should change to opt in
     }
+    
+    // MARK: HandleAnalyticsResponse(...)
+    
+    /// Tests that when receives a valid analytics event and response identity event source that we dispatch an Avid Sync event
+    func testHandleAnalyticsResponseHappy() {
+        // setup
+        let dispatchedEventExpectation = XCTestExpectation(description: "one event should be dispatched")
+        dispatchedEventExpectation.expectedFulfillmentCount = 1 // 1 identity events
+        dispatchedEventExpectation.assertForOverFulfill = true
+        
+        let eventData = [IdentityConstants.Analytics.ANALYTICS_ID: "aid" ] as [String: Any]
+        
+        let event = Event(name: "Test Analytics Response Event", type: EventType.analytics, source: EventSource.responseIdentity, data: eventData)
+
+        //test
+        state.handleAnalyticsResponse(event: event, eventDispatcher: { _ in
+            dispatchedEventExpectation.fulfill()
+        })
+
+        // verify
+        XCTAssertEqual(1,mockDataStore.dict.count) // identity properties should have been saved to persistence
+    }
+    
 }
 
 private extension Event {

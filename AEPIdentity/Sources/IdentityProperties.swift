@@ -45,7 +45,7 @@ struct IdentityProperties: Codable {
 
     /// The current privacy status provided by the Configuration extension, defaults to `unknown`
     var privacyStatus = PrivacyStatus.unknown
-
+    
     /// Converts `IdentityProperties` into an event data representation
     /// - Returns: A dictionary representing this `IdentityProperties`
     func toEventData() -> [String: Any] {
@@ -77,6 +77,25 @@ struct IdentityProperties: Codable {
     func saveToPersistence() {
         let dataStore = NamedCollectionDataStore(name: IdentityConstants.DATASTORE_NAME)
         dataStore.setObject(key: IdentityConstants.DataStoreKeys.IDENTITY_PROPERTIES, value: self)
+    }
+    
+    /// If `AIDSynced` key does not exist,  set one to the Identity data store
+    func saveAidSyncedKey(value: Bool) -> String {
+        let AID_SYNCED_KEY_EXIST = "aidSyncedKeyExist"
+        let AID_SYNCED_KEY_SET = "aidSyncedKeySet"
+        let dataStore = NamedCollectionDataStore(name: IdentityConstants.DATASTORE_NAME)
+        if dataStore.contains(key: IdentityConstants.DataStoreKeys.AID_SYNCED_KEY) {
+           return AID_SYNCED_KEY_EXIST
+        } else {
+        dataStore.set(key: IdentityConstants.DataStoreKeys.AID_SYNCED_KEY, value: value)
+        }
+          return AID_SYNCED_KEY_SET
+    }
+    
+    /// remove the`AIDSynced` key from the Identity data store
+    func removeAidSyncedKey() {
+        let dataStore = NamedCollectionDataStore(name: IdentityConstants.DATASTORE_NAME)
+        dataStore.remove(key: IdentityConstants.DataStoreKeys.IDENTITY_PROPERTIES)
     }
 
     /// Merges `newCustomIds` into `customerIds` by overwriting duplicate identities with new values in `newCustomIds`, and removes any identifiers with an empty or nil identifier
