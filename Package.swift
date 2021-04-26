@@ -15,18 +15,4 @@
 
 import PackageDescription
 
-let package = Package(
-    name: "AEPCore",
-    platforms: [.iOS(.v10)],
-    products: [
-        .library(name: "AEPCore", targets: ["AEPCore"]),
-    ],
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-nio.git", from: "1.0.0"),
-    ],
-    targets: [
-        .target(name: "AEPCore",
-                dependencies: ["NIO"],
-                path: "AEPCore/Sources"),
-    ]
 )
