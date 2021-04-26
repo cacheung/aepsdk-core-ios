@@ -20,29 +20,13 @@ let package = Package(
     platforms: [.iOS(.v10)],
     products: [
         .library(name: "AEPCore", targets: ["AEPCore"]),
-        .library(name: "AEPIdentity", targets: ["AEPIdentity"]),
-        .library(name: "AEPLifecycle", targets: ["AEPLifecycle"]),
-        .library(name: "AEPServices", targets: ["AEPServices"]),
-        .library(name: "AEPSignal", targets: ["AEPSignal"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "1.0.0"),
     ],
     targets: [
         .target(name: "AEPCore",
-                dependencies: ["AEPServices", "NIO"],
+                dependencies: ["NIO"],
                 path: "AEPCore/Sources"),
-        .target(name: "AEPIdentity",
-                dependencies: ["AEPCore"],
-                path: "AEPIdentity/Sources"),
-        .target(name: "AEPLifecycle",
-                dependencies: ["AEPCore"],
-                path: "AEPLifecycle/Sources"),
-        .target(name: "AEPServices",
-                dependencies: [],
-                path: "AEPServices/Sources"),
-        .target(name: "AEPSignal",
-                dependencies: ["AEPCore"],
-                path: "AEPSignal/Sources"),
     ]
 )
