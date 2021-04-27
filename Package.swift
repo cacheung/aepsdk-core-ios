@@ -20,13 +20,29 @@ let package = Package(
     platforms: [.iOS(.v10)],
     products: [
         .library(name: "AEPCore", targets: ["AEPCore"]),
+        .library(name: "AEPIdentity", targets: ["AEPIdentity"]),
+        .library(name: "AEPLifecycle", targets: ["AEPLifecycle"]),
+        .library(name: "AEPServices", targets: ["AEPServices"]),
+        .library(name: "AEPSignal", targets: ["AEPSignal"])
     ],
     dependencies: [
        
     ],
     targets: [
-        .target(name: "AEPCore",
-                dependencies: [],
+         .target(name: "AEPCore",
+                dependencies: ["AEPServices"],
                 path: "AEPCore/Sources"),
+        .target(name: "AEPIdentity",
+                dependencies: ["AEPCore"],
+                path: "AEPIdentity/Sources"),
+        .target(name: "AEPLifecycle",
+                dependencies: ["AEPCore"],
+                path: "AEPLifecycle/Sources"),
+        .target(name: "AEPServices",
+                dependencies: [],
+                path: "AEPServices/Sources"),
+        .target(name: "AEPSignal",
+                dependencies: ["AEPCore"],
+                path: "AEPSignal/Sources"),
     ]
 )
