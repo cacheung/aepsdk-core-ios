@@ -26,7 +26,6 @@ let package = Package(
         .library(name: "AEPSignal", targets: ["AEPSignal"])
     ],
     dependencies: [
-        
     ],
     targets: [
         .target(name: "AEPCore",
